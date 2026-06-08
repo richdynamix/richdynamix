@@ -1,0 +1,31 @@
+name: Latest blog posts
+
+on:
+  schedule:
+    # Every day at 2pm. Adjust the cron if you publish more/less often.
+    - cron: "0 14 * * *"
+  workflow_dispatch: {} # lets you run it manually from the Actions tab
+
+permissions:
+  contents: write # required so the action can commit the updated README
+
+jobs:
+  update-readme:
+    name: Pull latest articles into README
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update README with latest posts
+        uses: gautamkrishnar/blog-post-workflow@v1
+        with:
+          # RichDynamix RSS feed (see config/feed.php -> articles_rss)
+          feed_list: "https://richdynamix.com/feed.xml"
+          max_post_count: 6
+          # Must match the markers in README.md
+          comment_tag_name: "BLOG-POST-LIST"
+          template: "- [$title]($url)<br>"
+          # Skip the commit when nothing changed
+          disable_sort: "false"
+          commit_message: "chore: refresh latest blog posts"
